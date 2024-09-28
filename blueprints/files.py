@@ -1,39 +1,11 @@
 from flask import Blueprint, request, Response, send_file
 import os
-import jwt
+from blueprints.common import verifySession
 from utils.mongodb_util import MongodbUtil
 from misc.constants import *
-import time
 
 mongo_client = MongodbUtil()
 files_bp = Blueprint("files", __name__)
-secret = os.getenv("JWT_SECRET")
-algo = os.getenv("JWT_ALGO")
-
-
-def verifySession(token, expected_aud):
-    payload = None
-
-    try:
-        payload = jwt.decode(
-            token, secret, algorithms=algo, audience=expected_aud
-        )
-    except jwt.InvalidAudienceError as e:
-        return None
-
-    username = payload["sub"]
-    aud = payload["aud"]
-    session_id = payload["sid"]
-    expiry = payload["exp"]
-    session = mongo_client.get_sessions_by_username_and_sid(
-        aud, username, session_id)
-    if session is None:
-        return None
-    elif expiry < time.time():
-        return None
-
-    return {"sub": username, "aud": aud, "sid": session_id, "exp": expiry}
-
 
 @files_bp.route(f"/{UserTypes.OPS}/upload", methods=['POST'])
 def upload_file():
