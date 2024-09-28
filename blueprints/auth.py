@@ -1,29 +1,27 @@
 import os
 from flask import request, Response
-from mongodb_util import MongodbUtil
-from datetime import datetime, timedelta
-from time import time
+from utils.mongodb_util import MongodbUtil
+import time
+import datetime
 import jwt
-from constants import *
+from misc.constants import *
 from flask import Blueprint
 
-connection_string = os.getenv("MONGO_CONNECTION_STRING")
-mongodb_util = MongodbUtil(connection_string)
+_mongodb_util = MongodbUtil()
 auth_bp = Blueprint("auth", __name__)
-
 
 @auth_bp.route("/<user_type>/login", methods=["POST"])
 def login(user_type):
     username = request.form[LoginCreds.USERNAME]
     password = request.form[LoginCreds.PASSWORD]
 
-    result = mongodb_util.verifyCredentialsWithDb(
+    result = _mongodb_util.verify_credentials(
         user_type, username, password)
 
     if result:
-        session_id = int(time())
-        token = generate_token(user_type, username, session_id)
-        if mongodb_util.addSession(user_type, username, session_id, token):
+        session_id = int(time.time())
+        token = _generate_token(user_type, username, session_id)
+        if _mongodb_util.add_session(user_type, username, session_id, token):
             return Response(token, 200)
         else:
             return Response(status=500)
@@ -36,7 +34,10 @@ def signup(user_type):
     username = request.form[LoginCreds.USERNAME]
     password = request.form[LoginCreds.PASSWORD]
 
-    if mongodb_util.addUser(user_type, username, password):
+    if _mongodb_util.is_username_taken(user_type, username):
+        return Response("Username taken", 409)
+
+    if _mongodb_util.add_user(user_type, username, password):
         return Response(status=201)
 
     return Response(status=500)
@@ -49,13 +50,13 @@ def logout(user_type):
     if session_id == None or username == None:
         return "Invalid session id or username", 405
 
-    if mongodb_util.deleteSession(user_type, username, session_id):
+    if _mongodb_util.delete_session(user_type, username, session_id):
         return Response(status=200)
 
     return Response(status=500)
 
 
-def generate_token(user_type, username, session_id):
+def _generate_token(user_type, username, session_id):
     secret = os.getenv("JWT_SECRET")
     algo = os.getenv("JWT_ALGO")
     print("the algo name is", algo)
@@ -65,7 +66,7 @@ def generate_token(user_type, username, session_id):
         "sub": username,
         "aud": user_type,
         "sid": session_id,
-        "exp": datetime.now() + timedelta(days=365)
+        "exp": int(time.time()) + int(datetime.timedelta(days=365).total_seconds())
     }
 
     token = jwt.encode(payload, secret, algo)
