@@ -38,7 +38,7 @@ def signup(user_type):
     if mongo_client.is_username_taken(user_type, username):
         return Response("Username taken", 409)
 
-    if mongo_client.add_user(user_type, username, password):
+    if mongo_client.add_user(user_type, name=name, email=email, username=username, password=password):
         return Response(status=201)
 
     return Response(status=500)

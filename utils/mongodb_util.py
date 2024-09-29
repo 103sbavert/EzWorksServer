@@ -36,7 +36,7 @@ class MongodbUtil():
         if pw_hash is None:
             return False
         
-        return bcrypt.checkpw(password, pw_hash)
+        return bcrypt.checkpw(bytes(password, 'utf-8'), pw_hash)
 
     def _get_sessions_by_username(self, user_type, username):
         collection = None
@@ -45,7 +45,7 @@ class MongodbUtil():
         elif user_type == UserTypes.OPS:
             collection = self.ops_collection
         else:
-            return False
+            return None
 
         user = collection.find_one(
             {LoginCreds.USERNAME: username}
@@ -136,7 +136,9 @@ class MongodbUtil():
         email = user_info[SignupDetails.EMAIL]
         username = user_info[SignupDetails.USERNAME]
         password = user_info[SignupDetails.PASSWORD]
-        pw_hash = bcrypt.hashpw(password, username)
+        pw_bytes = bytes(password, 'utf-8')
+        salt = bcrypt.gensalt()
+        pw_hash = bcrypt.hashpw(pw_bytes, salt)
 
         result = collection.insert_one(
             {
@@ -152,7 +154,7 @@ class MongodbUtil():
 
         return False
 
-    def remove_user(self, user_type, username):
+    def delete_user(self, user_type, username):
         collection = None
         if user_type == UserTypes.CLIENT:
             collection = self.client_collection

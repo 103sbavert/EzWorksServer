@@ -9,7 +9,8 @@ mongo_client = MongodbUtil()
 secret = os.getenv("JWT_SECRET")
 algo = os.getenv("JWT_ALGO")
 
-def verifySession(token, expected_aud = [UserTypes.CLIENT, UserTypes.OPS]):
+
+def verifySession(token, expected_aud=[UserTypes.CLIENT, UserTypes.OPS]):
     payload = None
 
     try:
@@ -25,11 +26,9 @@ def verifySession(token, expected_aud = [UserTypes.CLIENT, UserTypes.OPS]):
     expiry = payload["exp"]
     session = mongo_client.get_sessions_by_username_and_sid(
         aud, username, session_id)
-    if session is None:
-        return None
-    elif expiry < time.time():
-        return None
 
+    if session is None or expiry < time.time():
+        return None
     return {"sub": username, "aud": aud, "sid": session_id, "exp": expiry}
 
 
@@ -47,5 +46,4 @@ def generate_token(user_type, username, session_id):
     }
 
     token = jwt.encode(payload, secret, algo)
-
     return token

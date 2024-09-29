@@ -1,5 +1,3 @@
-from constants import LoginCreds
-
 class UserTypes:
     OPS = "ops"
     CLIENT = "client"
@@ -8,6 +6,9 @@ class UserTypes:
 class JwtPayload:
     ISS = "EzWorks"
 
+class LoginCreds:
+    USERNAME = "username"
+    PW_HASH = "pwhash"
 
 class SignupDetails:
     NAME = "name"
@@ -15,11 +16,6 @@ class SignupDetails:
     USERNAME = LoginCreds.USERNAME
     PASSWORD = "password"
     PW_HASH = LoginCreds.PW_HASH
-
-
-class LoginCreds:
-    USERNAME = "username"
-    PW_HASH = "pwhash"
 
 
 class SessionManagement:
