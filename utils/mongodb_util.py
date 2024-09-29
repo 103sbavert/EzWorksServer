@@ -1,5 +1,4 @@
 import bson.binary
-import time
 from misc.constants import *
 from pymongo import MongoClient
 import bson
