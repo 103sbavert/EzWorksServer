@@ -1,4 +1,4 @@
-# EzWorks Flask Client
+# EzWorks Flask Server
 
 This is an assignment for a college placement company named EzWorks. The task was to create a backend-server in a Python-based backend framework.
 
