@@ -137,7 +137,7 @@ class MongodbUtil():
         username = user_info[SignupDetails.USERNAME]
         password = user_info[SignupDetails.PASSWORD]
 
-    
+
 
         pw_bytes = bytes(password, 'utf-8')
         salt = bcrypt.gensalt()
@@ -192,7 +192,7 @@ class MongodbUtil():
 
     def get_files(self, ops_username):
         collection = self.ops_collection
-        result = collection.find_one({LoginCreds: ops_username})
+        result = collection.find_one({LoginCreds.USERNAME: ops_username})
         files = result["files"]
 
         file_names = []

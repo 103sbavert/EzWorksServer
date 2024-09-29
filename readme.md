@@ -2,34 +2,41 @@
 
 This is an assignment for a college placement company named EzWorks. The task was to create a backend-server in a Python-based backend framework.
 
-To finish this task, I've made use of Flask, MongoDB and Python 3.12.6.
+To finish this task, I've made use of the following stack:
+1. MongoDB
+2. Flask
+3. Python (3.12)
 
-The API was tested with the help of `curl` and Postman. The API is ready for production use with minor changes that depend on the usecase.
+Other dependency packages are part of the `requirements.txt` stored at the root of the project.
 
-The API connects itself to a MongoDB Atlas instance which can be easily replaced with a local MongoDB instance. **Before running the server, make sure to add a .env file to the root directory of the project with the following strictly required contents**
+The API was tested with the help of Postman and `curl`. The API is ready for production use with minor changes that depend on the use case of the organization.
+
+The API connects itself to a MongoDB Atlas instance which can be easily replaced with a local MongoDB instance.
+
+**NOTE: Before running the server, make sure to add a .env file to the root directory of the project with the following _strictly required contents_**
 ```sh
 MONGO_CONNECTION_STRING = "<YOUR MONGODB CONNECTION STRING>"
 JWT_SECRET = "<YOUR JWT SECRET>"
 JWT_ALGO = "HS256"
 ```
 
-Replace the the content within `<>` with actual content as per the enclosed text.
+Replace the the content within `<>` with actual content as per the enclosed text. You may replace the `<YOUR MONGODB CONNECTION STRING>` with a local MongoDB instance or one hosted on Mongo Atlas or even AWS.
 
 
 ## Working
 The API is REST-ful and it exposes the following HTTP endpoints
 
 ### POST
-- /client/signup
-- /client/login
-- /ops/signup
-- /ops/login
-- /ops/upload
+- /client/signup [(video)](/postmanvideos/client_signup.webm)
+- /client/login [(video)](/postmanvideos/client_login.webm)
+- /ops/signup [(video)](/postmanvideos/ops_signup.webm)
+- /ops/login [(video)](/postmanvideos/ops_login.webm)
+- /ops/upload [(video)](/postmanvideos/ops_upload.webm)
 
 ### GET
 - /logout
-- /client/files/\<ops_username\>
-- /client/files/\<ops_username\>/\<file_name\>
+- /client/files/\<ops_username\> [(video)](/postmanvideos/client_list_files.webm)
+- /client/files/\<ops_username\>/\<file_name\> [(video)](/postmanvideos/client_download_file.webm)
 
 ### Using end points
 #### 1. /[ops|client]/signup
