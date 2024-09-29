@@ -53,16 +53,16 @@ This should output the server's private IP address and the port number that you 
 The API is REST-ful and it exposes the following HTTP endpoints
 
 ### POST
-- /client/signup [(video)](/postmanvideos/client_signup.webm)
-- /client/login [(video)](/postmanvideos/client_login.webm)
-- /ops/signup [(video)](/postmanvideos/ops_signup.webm)
-- /ops/login [(video)](/postmanvideos/ops_login.webm)
-- /ops/upload [(video)](/postmanvideos/ops_upload.webm)
+- /client/signup ![(video)](/postmanvideos/client_signup.gif)
+- /client/login ![(video)](/postmanvideos/client_login.gif)
+- /ops/signup ![(video)](/postmanvideos/ops_signup.gif)
+- /ops/login ![(video)](/postmanvideos/ops_login.gif)
+- /ops/upload ![(video)](/postmanvideos/ops_upload.gif)
 
 ### GET
 - /logout
-- /client/files/\<ops_username\> [(video)](/postmanvideos/client_list_files.webm)
-- /client/files/\<ops_username\>/\<file_name\> [(video)](/postmanvideos/client_download_file.webm)
+- /client/files/\<ops_username\> ![(video)](/postmanvideos/client_list_files.gif)
+- /client/files/\<ops_username\>/\<file_name\> ![(video)](/postmanvideos/client_download_file.gif)
 
 ### Using end points
 #### 1. /[ops|client]/signup
