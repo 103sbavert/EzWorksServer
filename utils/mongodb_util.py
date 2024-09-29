@@ -4,6 +4,7 @@ from misc.constants import *
 from pymongo import MongoClient
 import bson
 import os
+import bcrypt
 
 
 class MongodbUtil():
@@ -24,15 +25,18 @@ class MongodbUtil():
             return False
 
         user = collection.find_one(
-            {"username": username}
+            {LoginCreds.USERNAME: username}
         )
 
-        if user is None:
+        if user is None: 
             return False
-        elif user["password"] == password:
-            return True
-        else:
+        
+        pw_hash = user[LoginCreds.PW_HASH]
+
+        if pw_hash is None:
             return False
+        
+        return bcrypt.checkpw(password, pw_hash)
 
     def _get_sessions_by_username(self, user_type, username):
         collection = None
@@ -44,18 +48,17 @@ class MongodbUtil():
             return False
 
         user = collection.find_one(
-            {"username": username}
+            {LoginCreds.USERNAME: username}
         )
 
-        if user is None:
+        if user is None or user["sessions"] is None or len(user["sessions"]) == 0:
             return None
-        elif user["sessions"] is not None:
-            return user["sessions"]
-        else:
-            return None
+
+        return user["sessions"]
 
     def get_sessions_by_username_and_sid(self, user_type, username, sid):
         sessions = self._get_sessions_by_username(user_type, username)
+
         for i in sessions:
             if i["session_id"] == sid:
                 return i
@@ -72,7 +75,7 @@ class MongodbUtil():
             return False
 
         result = collection.update_one(
-            {"username": username}, {
+            {LoginCreds.USERNAME: username}, {
                 "$push": {
                     "sessions": {"session_id": session_id, "jwt": jwt}
                 }
@@ -81,8 +84,7 @@ class MongodbUtil():
 
         if result.modified_count >= 1:
             return True
-        else:
-            return False
+        return False
 
     def delete_session(self, user_type, username, session_id):
         collection = None
@@ -94,7 +96,7 @@ class MongodbUtil():
             return False
 
         result = collection.update_one(
-            {"username": username},
+            {LoginCreds.USERNAME: username},
             {
                 "$pull": {
                     "sessions": {"session_id": session_id}
@@ -104,8 +106,7 @@ class MongodbUtil():
 
         if result.modified_count >= 1:
             return True
-        else:
-            return False
+        return False
 
     def is_username_taken(self, user_type, username):
         collection = None
@@ -117,12 +118,12 @@ class MongodbUtil():
             return False
 
         result = collection.find_one(
-            {"username": username}
+            {SignupDetails.USERNAME: username}
         )
 
         return result is not None
 
-    def add_user(self, user_type, username, password):
+    def add_user(self, user_type, **user_info):
         collection = None
         if user_type == UserTypes.CLIENT:
             collection = self.client_collection
@@ -131,14 +132,22 @@ class MongodbUtil():
         else:
             return False
 
+        name = user_info[SignupDetails.NAME]
+        email = user_info[SignupDetails.EMAIL]
+        username = user_info[SignupDetails.USERNAME]
+        password = user_info[SignupDetails.PASSWORD]
+        pw_hash = bcrypt.hashpw(password, username)
+
         result = collection.insert_one(
             {
-                "username": username, "password": password
+                SignupDetails.USERNAME: name,
+                SignupDetails.EMAIL: email,
+                SignupDetails.USERNAME: username,
+                SignupDetails.PW_HASH: pw_hash
             }
         )
 
         if result.inserted_id is not None:
-            print(result.inserted_id)
             return True
 
         return False
@@ -152,7 +161,7 @@ class MongodbUtil():
         else:
             return False
 
-        result = collection.delete_one({"username": username})
+        result = collection.delete_one({LoginCreds.USERNAME: username})
 
         if result.modified_count >= 1:
             return True
@@ -163,7 +172,7 @@ class MongodbUtil():
         collection = self.ops_collection
 
         result = collection.update_one(
-            {"username": ops_username},
+            {LoginCreds.USERNAME: ops_username},
             {
                 "$push": {
                     "files": {"name": filename,  "data": bson.Binary(data)}
@@ -178,7 +187,7 @@ class MongodbUtil():
 
     def get_files(self, ops_username):
         collection = self.ops_collection
-        result = collection.find_one({"username": ops_username})
+        result = collection.find_one({LoginCreds: ops_username})
         files = result["files"]
 
         file_names = []
@@ -190,12 +199,9 @@ class MongodbUtil():
 
     def get_file_by_name(self, ops_username, file_name):
         collection = self.ops_collection
-        result = collection.find_one({"username": ops_username})
+        result = collection.find_one({LoginCreds.USERNAME: ops_username})
         files = result["files"]
 
         for file in files:
             if file["name"] == file_name:
                 return file
-                # file_name = f"/tmp/{file_name}.pdf"
-                # with open(file_name, "wb") as downloaded_file:
-                #     downloaded_file.write(file["data"])

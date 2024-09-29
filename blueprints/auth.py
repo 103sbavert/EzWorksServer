@@ -12,7 +12,7 @@ mongo_client = MongodbUtil()
 @auth_bp.route("/<user_type>/login", methods=["POST"])
 def login(user_type):
     username = request.form[LoginCreds.USERNAME]
-    password = request.form[LoginCreds.PASSWORD]
+    password = request.form[LoginCreds.PW_HASH]
 
     result = mongo_client.verify_credentials(
         user_type, username, password)
@@ -30,8 +30,10 @@ def login(user_type):
 
 @auth_bp.route("/<user_type>/signup", methods=["POST"])
 def signup(user_type):
-    username = request.form[LoginCreds.USERNAME]
-    password = request.form[LoginCreds.PASSWORD]
+    name = request.form[SignupDetails.NAME]
+    email = request.form[SignupDetails.EMAIL]
+    username = request.form[SignupDetails.USERNAME]
+    password = request.form[SignupDetails.PASSWORD]
 
     if mongo_client.is_username_taken(user_type, username):
         return Response("Username taken", 409)
