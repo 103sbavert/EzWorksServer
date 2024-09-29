@@ -11,19 +11,45 @@ Other dependency packages are part of the `requirements.txt` stored at the root 
 
 The API was tested with the help of Postman and `curl`. The API is ready for production use with minor changes that depend on the use case of the organization.
 
-The API connects itself to a MongoDB Atlas instance which can be easily replaced with a local MongoDB instance.
+### Key points:
+1. The API connects itself to a MongoDB Atlas instance which can be easily replaced with a local MongoDB instance.
+2. The server stores the password in MongoDB as a hash, not as plain text. This ensures that in the case of a data breach, the user's passwords are never stolen.
+3. The server requires a JWT token as the authorization header before allowing the user to perform any actions on the server that are directly part of the authentication process. In other words, except login, and signup, every process requires a JWT token to work.
+4. The server creates unique session IDs and associates each session with a JWT token that is generated on login. In order to invalidate a session, a `logout` call must be made to delete the token and the session from the system.
+5. A session and its associated JWT is only valid for 365 days after which the user must log-in again and re-generate a JWT.
 
-**NOTE: Before running the server, make sure to add a .env file to the root directory of the project with the following _strictly required contents_**
+## Running
+
+Step 0: **Before running the server, make sure to add a .env file to the root directory of the project with the following _strictly required contents_**
 ```sh
 MONGO_CONNECTION_STRING = "<YOUR MONGODB CONNECTION STRING>"
 JWT_SECRET = "<YOUR JWT SECRET>"
 JWT_ALGO = "HS256"
 ```
-
 Replace the the content within `<>` with actual content as per the enclosed text. You may replace the `<YOUR MONGODB CONNECTION STRING>` with a local MongoDB instance or one hosted on Mongo Atlas or even AWS.
 
+Step 1: Clone the repository to your local system
+In bash or any UNIX or POSIX-compliant shell, run:
+```bash
+$ git clone git@github.com:103sbavert/EzWorksServer.git
+$ cd EzWorksServer
+```
 
-## Working
+For non-UNIX shells, the steps must be similar.
+
+Step 2: Activate the python virtual environment and install required packages (if needed)
+```bash
+$ source .venv/bin/python3
+$ pip install --requirement=./requirements.txt
+```
+
+Step 3: Run the flask app
+```bash
+$ flask run --debug
+```
+This should output the server's private IP address and the port number that you can then make requests to using `curl` or Postman.
+
+## Explanation of the working
 The API is REST-ful and it exposes the following HTTP endpoints
 
 ### POST
