@@ -37,11 +37,13 @@ $ cd EzWorksServer
 
 For non-UNIX shells, the steps must be similar.
 
-Step 2: Activate the python virtual environment and install required packages (if needed)
+Step 2: Activate the python virtual environment for POSIX-compliant shells like so and install required packages (if needed)
 ```bash
-$ source .venv/bin/python3
+$ source .venv/bin/activate
 $ pip install --requirement=./requirements.txt
 ```
+
+Again, the steps should be similar for Windows PS and other non-POSIX compliant shells.
 
 Step 3: Run the flask app
 ```bash
