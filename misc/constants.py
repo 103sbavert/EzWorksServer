@@ -8,14 +8,14 @@ class JwtPayload:
 
 class LoginCreds:
     USERNAME = "username"
-    PW_HASH = "pwhash"
+    PASSWORD = "password"
 
 class SignupDetails:
     NAME = "name"
     EMAIL = "email"
     USERNAME = LoginCreds.USERNAME
-    PASSWORD = "password"
-    PW_HASH = LoginCreds.PW_HASH
+    PASSWORD = LoginCreds.PASSWORD
+    PW_HASH = "pwhash"
 
 
 class SessionManagement:

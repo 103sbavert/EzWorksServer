@@ -7,16 +7,21 @@ from misc.constants import *
 mongo_client = MongodbUtil()
 files_bp = Blueprint("files", __name__)
 
+
 @files_bp.route(f"/{UserTypes.OPS}/upload", methods=['POST'])
 def upload_file():
-    bearer = request.headers["Authorization"]
+    bearer = request.headers.get("Authorization", None)
+
+    if bearer is None:
+        return Response("No JWT in the Auth header", 403)
+
     token = bearer.split()[-1]
     payload = verifySession(token, UserTypes.OPS)
 
     if payload is None:
         return Response("Invalid JWT", status=403)
 
-    file = request.files["request_file"]
+    file = request.files.get("request_file", None)
 
     if file is None:
         return Response("A file is required", 400)
@@ -41,7 +46,11 @@ def upload_file():
 
 @files_bp.route(f"/{UserTypes.CLIENT}/files/<ops_username>", methods=["GET"])
 def get_file_names(ops_username):
-    bearer = request.headers["Authorization"]
+    bearer = request.headers.get("Authorization", None)
+
+    if bearer is None:
+        return Response("No JWT in the Auth header", 403)
+
     token = bearer.split()[-1]
     payload = verifySession(token, UserTypes.CLIENT)
 
@@ -55,22 +64,24 @@ def get_file_names(ops_username):
 
 @files_bp.route(f"/{UserTypes.CLIENT}/files/<ops_username>/<file_name>", methods=["GET"])
 def download_file(ops_username, file_name):
-    bearer = request.headers["Authorization"]
+    bearer = request.headers.get("Authorization", None)
+
+    if bearer is None:
+        return Response("No JWT in the Auth header", 403)
+    
     token = bearer.split()[-1]
     payload = verifySession(token, UserTypes.CLIENT)
 
     if payload is None:
         return Response("Invalid JWT", status=403)
-    
+
     mongo_file = mongo_client.get_file_by_name(ops_username, file_name)
-    
+
     if mongo_file is None:
         return Response("No such file uploaded", status=404)
-    
+
     download_path = f"/tmp/{file_name}"
     with open(download_path, "wb") as downloaded_file:
         downloaded_file.write(mongo_file["data"])
 
     return send_file(download_path, as_attachment=True)
-
-    

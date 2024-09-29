@@ -31,7 +31,7 @@ class MongodbUtil():
         if user is None: 
             return False
         
-        pw_hash = user[LoginCreds.PW_HASH]
+        pw_hash = user[SignupDetails.PW_HASH]
 
         if pw_hash is None:
             return False
@@ -136,6 +136,9 @@ class MongodbUtil():
         email = user_info[SignupDetails.EMAIL]
         username = user_info[SignupDetails.USERNAME]
         password = user_info[SignupDetails.PASSWORD]
+
+    
+
         pw_bytes = bytes(password, 'utf-8')
         salt = bcrypt.gensalt()
         pw_hash = bcrypt.hashpw(pw_bytes, salt)
